@@ -13,12 +13,23 @@ def courseUrl(code: String): String = s"$baseUrl/$code.html"
 
 val delimiters: Seq[Char] = Seq(' ', '/')
 
+val requiredETSN15: Set[String] = "EDA260/EDA270/EDA321/EDA322/EDAF45/EDAG05/EDAN80/ETS032/ETS140/ETS141/ETS160/ETS180/ETS312/ETSA01/ETSA02/ETSA03/ETSA05/ETSF01/ETSF20/ETSF25/ETSN05/MAMN01".split("/").toSet
+
 extension (s: String) 
   def splitArg: Seq[String] =
       val xs = delimiters.zipWithIndex.map((c, i) => (c, i, s.contains(c))).filter(_._3)
       if xs.isEmpty then Seq(s)else
         (for (c, i, has) <- xs if has yield s.split(c).toSeq).flatten
   def cap: String = s.toLowerCase.capitalize
+
+  def pastedFromLadokAvklarat = 
+    val xss: Seq[Seq[String]] = 
+      s.split("\n\t\n").toSeq
+        .map(_.split("\n").toSeq)
+        .map(xs => xs.map(s => s.trim))
+    val flat = for xs <- xss; x <- xs yield x
+    val grouped = flat.filterNot(x => x == "*").grouped(5).toSeq
+    grouped.map(xs => xs(2)).filter(s => requiredETSN15.contains(s))
 
 def usage(msg: String, cmdNum: Int, args: Seq[String]) = 
   println(s"$cmdNum $msg\nscala-cli run . -- command args\n\nAvailable commands:")
